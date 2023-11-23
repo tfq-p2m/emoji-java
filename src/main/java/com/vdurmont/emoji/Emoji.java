@@ -199,16 +199,13 @@ public class Emoji {
    *
    * @return the string representation
    */
+
+  /**Move Method
+   * created a new EmojiFormatter class with a static method formatToString.
+   * The toString method in the Emoji class now delegates the formatting responsibility to this helper class.
+  * */
   @Override
   public String toString() {
-    return "Emoji{" +
-      "description='" + description + '\'' +
-      ", supportsFitzpatrick=" + supportsFitzpatrick +
-      ", aliases=" + aliases +
-      ", tags=" + tags +
-      ", unicode='" + unicode + '\'' +
-      ", htmlDec='" + htmlDec + '\'' +
-      ", htmlHex='" + htmlHex + '\'' +
-      '}';
+    return EmojiFormatter.formatToString(this);
   }
 }

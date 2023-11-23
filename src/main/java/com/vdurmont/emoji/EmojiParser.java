@@ -186,7 +186,11 @@ public class EmojiParser {
             input.charAt(codePointStart) == '&' &&
             input.charAt(codePointStart + 1) == '#' &&
             charsIndex < chars.length &&
-            !EmojiManager.EMOJI_TRIE.isEmoji(chars, 0, charsIndex).impossibleMatch());
+            //!EmojiManager.EMOJI_TRIE.isEmoji(chars, 0, charsIndex).impossibleMatch());
+            /**
+            * Refoctore
+            * */
+            !EmojiManager.EMOJI_TRIE.isEmoji(chars, 0, charsIndex).isImpossibleMatch());
 
     if (longestEmoji == null) return null;
     return new AliasCandidate(longestEmoji, null, start, longestCodePointEnd);
@@ -479,18 +483,25 @@ public class EmojiParser {
     for (int j = startPos + 1; j <= text.length; j++) {
       EmojiTrie.Matches status = EmojiManager.EMOJI_TRIE.isEmoji(text, startPos, j);
 
-      if (status.exactMatch()) {
+     /* if (status.exactMatch()) {
         best = j;
       } else if (status.impossibleMatch()) {
         return best;
+      }*/
+      //TODO
+      if (status.isExactMatch()) {
+        best = j;
+      } else if (status.isImpossibleMatch()) {
+        return best;
       }
+
     }
 
     return best;
   }
 
 
-  public static class UnicodeCandidate {
+  /*public static class UnicodeCandidate {
     private final Emoji emoji;
     private final Fitzpatrick fitzpatrick;
     private final int startIndex;
@@ -532,7 +543,55 @@ public class EmojiParser {
     public int getFitzpatrickEndIndex() {
       return getEmojiEndIndex() + (fitzpatrick != null ? 2 : 0);
     }
+  }*/
+
+  /**
+   * Extract class
+  * */
+  public static class UnicodeCandidate {
+    private final Emoji emoji;
+    private final Fitzpatrick fitzpatrick;
+    private final int startIndex;
+
+    public UnicodeCandidate(Emoji emoji, String fitzpatrick, int startIndex) {
+      this.emoji = emoji;
+      this.fitzpatrick = Fitzpatrick.fitzpatrickFromUnicode(fitzpatrick);
+      this.startIndex = startIndex;
+    }
+
+    public Emoji getEmoji() {
+      return emoji;
+    }
+
+    public boolean hasFitzpatrick() {
+      return getFitzpatrick() != null;
+    }
+
+    public Fitzpatrick getFitzpatrick() {
+      return fitzpatrick;
+    }
+
+    public String getFitzpatrickType() {
+      return hasFitzpatrick() ? fitzpatrick.name().toLowerCase() : "";
+    }
+
+    public String getFitzpatrickUnicode() {
+      return hasFitzpatrick() ? fitzpatrick.unicode : "";
+    }
+
+    public int getEmojiStartIndex() {
+      return startIndex;
+    }
+
+    public int getEmojiEndIndex() {
+      return startIndex + emoji.getUnicode().length();
+    }
+
+    public int getFitzpatrickEndIndex() {
+      return getEmojiEndIndex() + (fitzpatrick != null ? 2 : 0);
+    }
   }
+
 
 
   protected static class AliasCandidate {

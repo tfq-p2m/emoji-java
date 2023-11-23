@@ -52,11 +52,17 @@ public class EmojiTrie {
    * Checks if the sequence of chars within the given bound indices contain an emoji.
    * @see #isEmoji(char[])
    */
+  //TODO
+
+  /**
+  *pull up variable
+  * */
   public Matches isEmoji(char[] sequence, int start, int end) {
-    if (start < 0 || start > end || end > sequence.length) {
+    /*if (start < 0 || start > end || end > sequence.length) {
       throw new ArrayIndexOutOfBoundsException(
               "start " + start + ", end " + end + ", length " + sequence.length);
-    }
+    }*/
+    validateIndices(sequence, start, end);
 
     if (sequence == null) {
       return Matches.POSSIBLY;
@@ -74,6 +80,8 @@ public class EmojiTrie {
   }
 
 
+
+
   /**
    * Finds Emoji instance from emoji unicode
    * @param unicode unicode of emoji to get
@@ -83,7 +91,10 @@ public class EmojiTrie {
     return getEmoji(unicode.toCharArray(), 0, unicode.length());
   }
 
-  Emoji getEmoji(char[] sequence, int start, int end) {
+  /*
+  * This method
+  * */
+/*  Emoji getEmoji(char[] sequence, int start, int end) {
     if (start < 0 || start > end || end > sequence.length) {
       throw new ArrayIndexOutOfBoundsException(
               "start " + start + ", end " + end + ", length " + sequence.length);
@@ -97,9 +108,60 @@ public class EmojiTrie {
       tree = tree.getChild(sequence[i]);
     }
     return tree.getEmoji();
+  }*/
+
+
+  //TODO
+   /**DECOMPOSE CONDITIONAL
+   * In this refactoring, I've introduced two helper methods:
+   * validateIndices and navigateTree. The validateIndices method checks if the
+   * start and end indices are valid, and the navigateTree method abstracts the
+   * logic of navigating the tree. This decomposition makes the main method (getEmoji)
+   * more focused on the high-level logic, improving readability and maintainability.
+   * */
+  Emoji getEmoji(char[] sequence, int start, int end) {
+    validateIndices(sequence, start, end);
+    Node tree = root;
+    for (int i = start; i < end; i++) {
+      tree = navigateTree(tree, sequence[i]);
+      if (tree == null) {
+        return null;
+      }
+    }
+    return tree.getEmoji();
   }
 
-  public enum Matches {
+  /**
+  * Decompose Condition
+  * */
+  private void validateIndices(char[] sequence, int start, int end) {
+   /* if (start < 0 || start > end || end > sequence.length) {
+      throw new ArrayIndexOutOfBoundsException(
+              "start " + start + ", end " + end + ", length " + sequence.length);
+    }*/
+    if (start < 0) {
+      throw new ArrayIndexOutOfBoundsException("start " + start + " is less than 0");
+    }
+    if (start > end) {
+      throw new ArrayIndexOutOfBoundsException("start " + start + " is greater than end " + end);
+    }
+    if (end > sequence.length) {
+      throw new ArrayIndexOutOfBoundsException("end " + end + " is greater than the length of the sequence " + sequence.length);
+    }
+
+  }
+
+  private Node navigateTree(Node tree, char character) {
+    if (!tree.hasChild(character)) {
+      return null;
+    }
+    return tree.getChild(character);
+  }
+
+
+
+
+/*  public enum Matches {
     EXACTLY, POSSIBLY, IMPOSSIBLE;
 
     public boolean exactMatch() {
@@ -109,7 +171,27 @@ public class EmojiTrie {
     public boolean impossibleMatch() {
       return this == IMPOSSIBLE;
     }
+  }*/
+
+
+  /**
+  * rename method/variable
+  * */
+
+
+  public enum Matches {
+    EXACTLY, POSSIBLY, IMPOSSIBLE;
+
+    public boolean isExactMatch() {
+      return this == EXACTLY;
+    }
+
+    public boolean isImpossibleMatch() {
+      return this == IMPOSSIBLE;
+    }
   }
+
+
 
   private class Node {
     private Map<Character, Node> children = new HashMap<Character, Node>();
@@ -137,6 +219,23 @@ public class EmojiTrie {
 
     private boolean isEndOfEmoji() {
       return emoji != null;
+    }
+
+    //TODO
+    /**Extracted methods
+    *  *Extracted two methods: initializeChildren() and createChild(char child).
+    *  *The initializeChildren() method initializes the children map,
+    *  *and the createChild(char child) method is responsible for creating a child node with the given character.
+    *  *These extracted methods make the code more modular and easier to understand.
+    * */
+
+    //  *start Extracted methods for better readability and maintainability
+    private void initializeChildren() {
+      children = new HashMap<Character, Node>();
+    }
+
+    private void createChild(char child) {
+      children.put(child, new Node());
     }
   }
 }
