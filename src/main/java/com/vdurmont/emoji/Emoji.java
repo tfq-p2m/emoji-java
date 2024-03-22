@@ -3,7 +3,9 @@ package com.vdurmont.emoji;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
-
+/*
+* test with designite
+* */
 /**
  * This class represents an emoji.<br>
  * <br>
